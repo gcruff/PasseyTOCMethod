@@ -1,0 +1,74 @@
+{
+"labdata":
+    {
+    "filename": "C:\\Users\\fvize\\Desktop\\Geoq\\Dados.csv",
+    "delimiter": ";",
+    "decimal": ".",
+    "headerlines": 1,
+    "nullstr": "-",
+    "rows":
+        {
+        "well": 0,
+        "top": 1,
+        "base": 2,
+        "toc": 3
+        }
+    },
+"logdata":
+    {
+    "lasfilesdir": "C:\\Users\\fvize\\Desktop\\Geoq\\LASfiles",
+    "mnemoics":
+        {
+            "depth": "DEPT",
+            "dt": "DT",
+            "rt": "ILD",
+            "gr": "GR",
+            "cali": "CALI",
+            "lito": "LITO"
+        }
+    },
+"visualization":
+    {
+    "limits":
+        {
+            "dt": [200.0, 0.0],
+            "logrt": [-1.0, 3.0],
+            "gr": [0.0, 150.0],
+            "dtlogr": [-1.0, 3.0],
+            "toc": [0.0, 10.0],
+            "cali": [6.0, 16.0]
+        },
+    "colors":
+        {
+            "dt": "gray",
+            "logrt": "red",
+            "gr": "green",
+            "toc": "blue",
+            "labtoc": "red",
+            "baseline": "blue",
+            "cali": "gray"
+        }
+    },
+"initialparameters":
+    {
+        "lom": 10.0,
+        "dtbaseline": 100.0,
+        "logrtbaseline": 0.0
+    },
+"others":
+    {
+        "smoothing":
+        {
+            "smooth": false,
+            "show": false,
+            "windowsize": 101,
+            "window": ["gaussian", 20.0]
+        },
+        "resampling":
+        {
+            "resample": false,
+            "npoints": 1000
+        },
+        "nolito": -1
+    }
+}
