@@ -49,7 +49,7 @@ def readcsv(file, delimiter=',', decimal='.', headerlines=1, strip=True, onlystr
                     asfloat.append(nullfloat)
                     continue
                 try:
-                    asfloat.append(float(data[i][j]))
+                    asfloat.append(float(data[i][j].replace(decimal, '.')))
                 except:
                     success = False
                     break
