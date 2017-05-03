@@ -33,7 +33,7 @@
     },
     "argilito": {
         "color": [127, 255, 0],
-        "hatch": ""
+        "hatch": "|"
     },
     "folhelho": {
         "color": [63, 255, 0],
@@ -52,19 +52,19 @@
         "hatch": "\\"
     },
     "dolomito": {
-        "color": [88, 111, 91],
-        "hatch": "O"
+        "color": [0, 190, 205],
+        "hatch": "+"
     },
     "areia": {
-        "color": [255, 255, 126],
-        "hatch": "\\"
+        "color": [255, 255, 63],
+        "hatch": "o"
     },
     "argila": {
-        "color": [126, 255, 126],
-        "hatch": "/"
+        "color": [127, 255, 0],
+        "hatch": "|"
     },
     "ultrabasica": {
-        "color": [0, 0, 0],
-        "hatch": "/"
+        "color": [0, 160, 0],
+        "hatch": "|"
     }
 }

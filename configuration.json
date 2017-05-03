@@ -1,9 +1,9 @@
 {
 "labdata":
     {
-    "filename": "C:\\Users\\fvize\\Desktop\\Geoq\\Dados.csv",
+    "filename": "C:\\Users\\fvize\\Desktop\\ArtigoSBGeoq\\Dados\\dadoslab.csv",
     "delimiter": ";",
-    "decimal": ".",
+    "decimal": ",",
     "headerlines": 1,
     "nullstr": "-",
     "rows":
@@ -16,7 +16,7 @@
     },
 "logdata":
     {
-    "lasfilesdir": "C:\\Users\\fvize\\Desktop\\Geoq\\LASfiles",
+    "lasfilesdir": "C:\\Users\\fvize\\Desktop\\ArtigoSBGeoq\\Dados\\LAS",
     "mnemoics":
         {
             "depth": "DEPT",
@@ -59,14 +59,14 @@
     {
         "smoothing":
         {
-            "smooth": false,
+            "smooth": true,
             "show": false,
             "windowsize": 101,
             "window": ["gaussian", 20.0]
         },
         "resampling":
         {
-            "resample": false,
+            "resample": true,
             "npoints": 1000
         },
         "nolito": -1
