@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+import matplotlib
+matplotlib.use('TkAgg')
+
 import os
 import numpy as np
 import matplotlib.pyplot as plt
@@ -8,13 +11,18 @@ from matplotlib.ticker import NullFormatter, NullLocator, MaxNLocator
 import codecs
 import json
 
+
 import readcsv
 import LAS
 
 from mplwidgets import BaselinePicker, LiveLine, LOMPicker, DepthController
 
-colorsdict = dict(blue="C0", orange="C1", green="C2", red="C3", purple="C4",
-                  brown="C5", pink="C6", gray="C7", yellow="C8", cyan="C9")
+if int(matplotlib.__version__[0]) >= 2:
+    colorsdict = dict(blue="C0", orange="C1", green="C2", red="C3", purple="C4",
+                      brown="C5", pink="C6", gray="C7", yellow="C8", cyan="C9")
+else:
+    colorsdict = dict(blue="b", orange="orange", green="g", red="r", purple="purple",
+                      brown="brow", pink="m", gray="k", yellow="y", cyan="c")
 
 with open('litocodes.json', 'r') as f:
     litocodes = json.load(f)
@@ -23,7 +31,7 @@ with open('litopatterns.json', 'r') as f:
     litopatterns = json.load(f)
 
 # TODO: parametrizar linewidht, fontsize, etc...
-_FONTSIZE = 12.0
+_FONTSIZE = 20.0
 _DEPTHSHIFT = 345.0
 
 ### BEGIN: FUNCTIONS ###
@@ -67,7 +75,13 @@ def passeymethod(dt, logrt, dtbaseline, logrtbaseline, lom):
     return np.clip(toc, 0.0, 100.0)
 
 def logplot(ax, depth, log, color="C0", xlim=None, ylim=None, style='-'):
-    line, = ax.plot(log, depth, color+style)
+    if style in ('-', '--', '-.', ':'):
+        linestyle = style
+        marker = None
+    else:
+        linestyle = ''
+        marker = style
+    line, = ax.plot(log, depth, c=color, ls=linestyle, marker=marker)
     ax.grid(True)
     
     if xlim:
@@ -103,14 +117,18 @@ def loglegend(ax, label, xlim, color, style, fontsize, linewidth=None):
     ax.text(0.99, 0.01, str(xlim[1]).replace('.', ','), fontsize=fontsize, ha='right', va='bottom')
     ax.text(0.5, 0.56, label, fontsize=fontsize, ha='center', va='bottom')
     
-    if style in ('-',):
+    if style in ('-', '--', '-.', ':'):
+        linestyle = style
+        marker = None
         x = [0.25, 0.75]
         y = [0.5, 0.5]
     else:
+        linestyle = ''
+        marker = style
         x = [1.0/3.0, 0.5, 2.0/3.0]
         y = [0.5, 0.5, 0.5]
     
-    ax.plot(x, y, color + style, linewidth=linewidth)
+    ax.plot(x, y, c=color, ls=linestyle, marker=marker, lw=linewidth)
     
     ax.set_xlim([0.0, 1.0])
     ax.set_ylim([0.0, 1.0])
@@ -250,7 +268,6 @@ for lasfilename in lasfilenames:
         for idx, curvename in enumerate(lasfile.curvesnames):
             if not curvename.startswith(mnem):
                 continue
-            print mnem, curvename
             if curvedata["unit"] is None:
                 curvedata["unit"] = lasfile.curvesunits[idx]
                 curvedata["displayname"] = getdisplayname(curvedata["name"], curvedata["unit"])
@@ -319,6 +336,15 @@ while True:
     gr = logdata[wellname]["gr"]['data']
     cali = logdata[wellname]["cali"]['data']
     
+    if 'lito' in logdata[wellname]:
+        uselito = True
+        lito = logdata[wellname]["lito"]['data']
+    else:
+        uselito = False
+    
+    w = depth > 2600
+    print np.unique(lito[w])
+    
     depth -= _DEPTHSHIFT
     labdepth -= _DEPTHSHIFT
     
@@ -351,23 +377,17 @@ while True:
     
     toci = passeymethod(dt2, logrt2, dtbli, logrtbli, lomi)
     
-    if 'lito' in logdata[wellname]:
-        uselito = True
-        lito = logdata[wellname]["lito"]['data']
-    else:
-        uselito = False
-    
     mainfigure = plt.figure(figsize=(16, 9))
     
-    legendheight = 0.04
-    depthwidth = 0.06
+    legendheight = 0.07
+    depthwidth = 0.04
     
     if uselito:
-        left = 0.01 + 2*depthwidth
+        left = 0.005 + 2*depthwidth
     else:
-        left = 0.01 + depthwidth
+        left = 0.005 + depthwidth
     
-    plt.subplots_adjust(left=left, right=0.99, bottom=0.01, top=0.99-2*legendheight, wspace=0.0)
+    plt.subplots_adjust(left=left, right=0.995, bottom=0.005, top=0.995-2*legendheight, wspace=0.0)
     
     ###
     
@@ -399,7 +419,7 @@ while True:
     
     rect = getlegendrect(ax2, legendheight, legendheight)
     aux = plt.axes(rect)
-    loglegend(aux, "Baseline", limits["dt"], colorsdict[colors["baseline"]], '-', linewidth=5.0, fontsize=_FONTSIZE)
+    loglegend(aux, "Baseline", limits["dt"], colorsdict[colors["baseline"]], '-', linewidth=3.0, fontsize=_FONTSIZE)
     
     if smoothing["smooth"] and smoothing["show"]:
         logplot(ax2, depth2, dt2, colorsdict[colors["logrt"]], limits["dt"], depthlim)
@@ -408,7 +428,7 @@ while True:
         # aux = plt.axes(rect)
         # loglegend(aux, logdata[wellname]["dt"]['displayname'] + " (Smooth)", limits["dt"], colorsdict[colors["logrt"]], '-', fontsize=_FONTSIZE)
     
-    blpdt = BaselinePicker(ax2, color=colorsdict[colors["baseline"]], x0=dtbli, linewidth=5.0)
+    blpdt = BaselinePicker(ax2, color=colorsdict[colors["baseline"]], x0=dtbli, linewidth=3.0)
     blpdt.connect()
     
     ###
@@ -424,7 +444,7 @@ while True:
     
     rect = getlegendrect(ax3, legendheight, legendheight)
     aux = plt.axes(rect)
-    loglegend(aux, "Baseline", limits["logrt"], colorsdict[colors["baseline"]], '-', linewidth=5.0, fontsize=_FONTSIZE)
+    loglegend(aux, "Baseline", limits["logrt"], colorsdict[colors["baseline"]], '-', linewidth=3.0, fontsize=_FONTSIZE)
     
     if smoothing["smooth"] and smoothing["show"]:
         logplot(ax3, depth2, logrt2, colorsdict[colors["dt"]], limits["logrt"], depthlim)
@@ -433,7 +453,7 @@ while True:
         # aux = plt.axes(rect)
         # loglegend(aux, "log({})".format(logdata[wellname]["rt"]['displayname']) + " (Smooth)", limits["logrt"], colorsdict[colors["dt"]], '-', fontsize=_FONTSIZE)
     
-    blplogrt = BaselinePicker(ax3, color=colorsdict[colors["baseline"]], x0=logrtbli, linewidth=5.0)
+    blplogrt = BaselinePicker(ax3, color=colorsdict[colors["baseline"]], x0=logrtbli, linewidth=3.0)
     blplogrt.connect()
     
     ###
@@ -462,11 +482,11 @@ while True:
     
     rect = getlegendrect(ax5, 0.0, legendheight)
     aux = plt.axes(rect)
-    loglegend(aux, "TOC calculado (%)", limits["toc"], colorsdict[colors["toc"]], '-', fontsize=_FONTSIZE)
+    loglegend(aux, "COT calculado (%)", limits["toc"], colorsdict[colors["toc"]], '-', fontsize=_FONTSIZE)
     
     rect = getlegendrect(ax5, legendheight, legendheight)
     aux = plt.axes(rect)
-    loglegend(aux, "TOC medido (%)", limits["toc"], colorsdict[colors["labtoc"]], 'o', fontsize=_FONTSIZE)
+    loglegend(aux, "COT medido (%)", limits["toc"], colorsdict[colors["labtoc"]], 'o', fontsize=_FONTSIZE)
     
     dtll = LiveLine(dtline)
     logrtll = LiveLine(logrtline)
@@ -509,7 +529,7 @@ while True:
     plt.xlabel("LOM")
     plt.xticks(range(21))
     plt.yticks([])
-    lompicker = LOMPicker(ax, color=colorsdict[colors["baseline"]], x0=lomi, linewidth=5.0)
+    lompicker = LOMPicker(ax, color=colorsdict[colors["baseline"]], x0=lomi, linewidth=3.0)
     lompicker.connect()
     
     ###
@@ -520,7 +540,7 @@ while True:
     plt.ylabel(logdata[wellname]["depth"]['displayname'])
     # plt.yticks(range(21))
     plt.xticks([])
-    dptcntr = DepthController(ax, depthlim, color=colorsdict[colors["baseline"]], linewidth=5.0)
+    dptcntr = DepthController(ax, depthlim, color=colorsdict[colors["baseline"]], linewidth=3.0)
     dptcntr.connect()
     
     ###
@@ -576,11 +596,7 @@ while True:
             yticks = depthax.get_yticks()
             for tick in yticks:
                 if tick < ylim[0] and tick > ylim[1]:
-                    if tick >= 1000:
-                        ticktext = "X"+str(tick)[1:]
-                    else:
-                        ticktext = "X"+str(tick)
-                    depthax.text(0.5, tick, ticktext.replace('.', ','), ha='center', va='center', fontsize=_FONTSIZE)
+                    depthax.text(0.5, tick, "X{:g}".format(tick % 1000).replace('.', ','), ha='center', va='center', fontsize=_FONTSIZE)
             
             mainfigure.canvas.draw() 
     
