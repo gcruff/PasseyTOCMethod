@@ -1,5 +1,25 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
+
+# Python 2 compatibility from: https://github.com/oxplot/fysom/issues/1
+try:
+    unicode = unicode
+except NameError:
+    # 'unicode' is undefined, must be Python 3
+    str = str
+    unicode = str
+    bytes = bytes
+    basestring = (str,bytes)
+    raw_input = input
+else:
+    # 'unicode' exists, must be Python 2
+    str = str
+    unicode = unicode
+    bytes = str
+    basestring = basestring
+    raw_input = input
+
 import matplotlib
 matplotlib.use('TkAgg')
 
@@ -10,7 +30,6 @@ from scipy import signal
 from matplotlib.ticker import NullFormatter, NullLocator, MaxNLocator
 import codecs
 import json
-
 
 import readcsv
 import LAS
@@ -94,8 +113,8 @@ def logplot(ax, depth, log, color="C0", xlim=None, ylim=None, style='-'):
     else:
         ylim = ax.get_ylim()
     
-    ax.tick_params(labelbottom='off')
-    ax.tick_params(labelleft='off')
+    ax.tick_params(labelbottom=False)
+    ax.tick_params(labelleft=False)
     ax.tick_params(width=0.0)
     
     return line
@@ -128,6 +147,9 @@ def loglegend(ax, label, xlim, color, style, fontsize, linewidth=None):
         x = [1.0/3.0, 0.5, 2.0/3.0]
         y = [0.5, 0.5, 0.5]
     
+    if linewidth is None:
+        linewidth = 1.0
+
     ax.plot(x, y, c=color, ls=linestyle, marker=marker, lw=linewidth)
     
     ax.set_xlim([0.0, 1.0])
@@ -153,8 +175,8 @@ def emptytrack(ax, depthlim):
     ax.set_xlim([0.0, 1.0])
     ax.set_ylim(depthlim)
     
-    ax.tick_params(labelbottom='off')
-    ax.tick_params(labelleft='off')
+    ax.tick_params(labelbottom=False)
+    ax.tick_params(labelleft=False)
     ax.tick_params(width=0.0)
 
 def classificationplot(ax, depth, classification, ylim=None):
@@ -162,8 +184,8 @@ def classificationplot(ax, depth, classification, ylim=None):
         ax.set_ylim(ylim)
     
     ax.set_xlim([0.0, 1.0])
-    ax.tick_params(labelbottom='off')
-    ax.tick_params(labelleft='off')
+    ax.tick_params(labelbottom=False)
+    ax.tick_params(labelleft=False)
     ax.tick_params(width=0.0)
 
     classes = np.unique(classification)
@@ -180,14 +202,14 @@ def classificationplot(ax, depth, classification, ylim=None):
 
 ###
 
-print "Loading configuration file."
+print("Loading configuration file.")
 
 with open("configuration.json", "r") as f:
     config = json.load(f)
 
-print
+print("")
 
-print "Reading CSV file."
+print("Reading CSV file.")
 
 csvfilename = config["labdata"].pop("filename")
 csvrows = config["labdata"].pop("rows")
@@ -208,11 +230,11 @@ for wellname in wellnames:
     for key, index in csvrows.items():
         labdata[wellname][key] = np.array(csvdata[index], dtype=float)[where]
 
-print
+print("")
 
 ###
 
-print "Starting LAS files reading."
+print("Starting LAS files reading.")
 
 lasfilesdir = config["logdata"].pop("lasfilesdir")
 mnemoics = config["logdata"].pop("mnemoics")
@@ -224,7 +246,7 @@ lasfilenames = os.listdir(lasfilesdir)
 logdata = {}
 
 for lasfilename in lasfilenames:
-    print "Reading {} ...".format(lasfilename),
+    print("Reading {} ...".format(lasfilename), end=" ")
     
     lasfile = LAS.open(os.path.join(lasfilesdir, lasfilename), 'r')
     lasfile.read()
@@ -283,13 +305,13 @@ for lasfilename in lasfilenames:
          
     logdata[wellname] = welldata
     
-    print "Done!"
+    print("Done!")
 
-print
+print("")
 
 ###
 
-print "Begining interactive Passey Method."
+print("Begining interactive Passey Method.")
 
 wellnameslist = list(sorted(logdata.keys()))
 choosewellprompt = "Choose well:\n{}\n> ".format('\n'.join(["{}. {}".format(a, b) for a, b in enumerate(["Close"] + wellnameslist)]))
@@ -305,27 +327,27 @@ resampling = config["others"].pop("resampling")
 
 while True:
     resp = raw_input(choosewellprompt)
-    print
+    print("")
     try:
         resp = int(resp)
     except:
-        print "Invalid choice!"
+        print("Invalid choice!")
         continue
     
     if resp == 0:
-        print "Closing program."
+        print("Closing program.")
         break
     elif resp > len(wellnameslist) or resp < 0:
-        print "Invalid choice!"
+        print("Invalid choice!")
         continue
     else:
         wellname = wellnameslist[resp-1]
     
     if wellname not in labdata:
-        print "Skipping well {}: no lab data.".format(wellname)
+        print("Skipping well {}: no lab data.".format(wellname))
         continue
     
-    print "Well {}.".format(wellname)
+    print("Well {}.".format(wellname))
     
     labdepth = labdata[wellname]['top']
     labtoc = labdata[wellname]['toc']
@@ -341,9 +363,6 @@ while True:
         lito = logdata[wellname]["lito"]['data']
     else:
         uselito = False
-    
-    w = depth > 2600
-    print np.unique(lito[w])
     
     depth -= _DEPTHSHIFT
     labdepth -= _DEPTHSHIFT

@@ -12,6 +12,7 @@ References
     http://www.cwls.org/wp-content/uploads/2014/09/LAS_20_Update_Jan2014.pdf
 """
 
+from __future__ import print_function
 
 import numpy as np
 from collections import OrderedDict
@@ -116,11 +117,11 @@ class LASReader(LASFile):
     
     @property
     def curvesnames(self):
-        return [line['MNEM'] for line in self.header["C"].itervalues()]
+        return [line['MNEM'] for line in self.header["C"].values()]
     
     @property
     def curvesunits(self):
-        return [line['UNIT'] for line in self.header["C"].itervalues()]
+        return [line['UNIT'] for line in self.header["C"].values()]
 
     @staticmethod    
     def _splitline(line):
@@ -348,7 +349,7 @@ class LASReader(LASFile):
                 currentsection.append(line.split('\n')[0])
             linecount += 1
         
-        for sectionkey, lines in header.iteritems():
+        for sectionkey, lines in header.items():
             try:
                 section = OrderedDict()
                 sectionlayout = {}
@@ -368,8 +369,8 @@ class LASReader(LASFile):
                         new_mnem = old_mnem + '_{:0>4}'.format(count)
                     
                     if _VERBOSE and count:
-                        print "Nome de curva repetido:", old_mnem
-                        print "Substituindo por:", new_mnem
+                        print("Nome de curva repetido:", old_mnem)
+                        print("Substituindo por:", new_mnem)
                     
                     parsedline['MNEM'] = new_mnem
                     section[new_mnem] = parsedline
@@ -724,20 +725,20 @@ class LASWriter(LASFile):
         alligndesc = bool(style["DESC"].get('allign'))
         
         sizearrays = {}
-        for sectionkey, section in header.iteritems():
+        for sectionkey, section in header.items():
             if isinstance(section, basestring) or not section:
                 continue
             sizearray = {}
             for key in ("MNEM", "UNIT", "DATA", "DESC"):
-                sizearray[key] = np.array([len(line[key]) for line in section.itervalues()])
+                sizearray[key] = np.array([len(line[key]) for line in section.values()])
             sizearrays[sectionkey] = sizearray
         
         usizearray = {}
         for key in ("MNEM", "UNIT", "DATA", "DESC"):
-            usizearray[key] = np.hstack(sizearray[key] for sizearray in sizearrays.itervalues())
+            usizearray[key] = np.hstack(sizearray[key] for sizearray in sizearrays.values())
         
         leftpositions = {}
-        for sectionkey, section in header.iteritems():
+        for sectionkey, section in header.items():
             if isinstance(section, basestring) or not section:
                 continue
             leftposition = {}
@@ -780,7 +781,7 @@ class LASWriter(LASFile):
             leftpositions[sectionkey] = leftposition
         
         headerlayout = {}
-        for sectionkey, section in header.iteritems():
+        for sectionkey, section in header.items():
             if isinstance(section, basestring) or not section:
                 continue
             
@@ -789,7 +790,7 @@ class LASWriter(LASFile):
                 msizearray = usizearray
             else:
                 msizearray = sizearrays[sectionkey]
-            for i, line in enumerate(section.itervalues()):
+            for i, line in enumerate(section.values()):
                 linelayout = []
                 for key in ("MNEM", "DATA", "DESC"):
                     spaces = np.max(msizearray[key]) - len(line[key])
@@ -944,18 +945,18 @@ class LASWriter(LASFile):
         
         if not sectionnames:
             sectionnames = {}
-            for key in header.iterkeys():
+            for key in header.keys():
                 sectionnames[key] = '~' + key
         
         if not layout:
             layout = {}
-            for key in header.iterkeys():
+            for key in header.keys():
                 layout[key] = {}.fromkeys(header[key])
         
         if not comments:
             comments = {}
         
-        for sectionkey, section in header.iteritems():
+        for sectionkey, section in header.items():
             while len(lines) in comments:
                 lines.append(comments[len(lines)])
             if not section:
@@ -967,7 +968,7 @@ class LASWriter(LASFile):
                         lines.append(comments[len(lines)])
                     lines.append(line)
             else:
-                for key, line in section.iteritems():
+                for key, line in section.items():
                     while len(lines) in comments:
                         lines.append(comments[len(lines)])
                     linelayout = layout[sectionkey][key]
