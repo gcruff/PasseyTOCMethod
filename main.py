@@ -34,6 +34,8 @@ import json
 import readcsv
 import LAS
 
+import pandas as pd
+
 from mplwidgets import BaselinePicker, LiveLine, LOMPicker, DepthController
 
 if int(matplotlib.__version__[0]) >= 2:
@@ -223,8 +225,8 @@ wells = np.array(csvdata[csvrows.pop("well")], dtype=unicode)
 wellnames = np.unique(wells)
 
 labdata = {}
-
 for wellname in wellnames:
+    
     labdata[wellname] = {}
     where = wells == wellname
     for key, index in csvrows.items():
@@ -239,12 +241,12 @@ print("Starting LAS files reading.")
 lasfilesdir = config["logdata"].pop("lasfilesdir")
 mnemoics = config["logdata"].pop("mnemoics")
 depthmnem = mnemoics.pop("depth")
-litomnem = mnemoics.pop("lito")
+litomnem = False #mnemoics.pop("lito")
 nolito = config["others"].pop("nolito")
 
 lasfilenames = os.listdir(lasfilesdir)
 logdata = {}
-
+print(lasfilenames)
 for lasfilename in lasfilenames:
     print("Reading {} ...".format(lasfilename), end=" ")
     
@@ -358,11 +360,11 @@ while True:
     gr = logdata[wellname]["gr"]['data']
     cali = logdata[wellname]["cali"]['data']
     
-    if 'lito' in logdata[wellname]:
-        uselito = True
-        lito = logdata[wellname]["lito"]['data']
-    else:
-        uselito = False
+    #if 'lito' in logdata[wellname]:
+    #    uselito = True
+    #    lito = logdata[wellname]["lito"]['data']
+    #else:
+    uselito = False
     
     depth -= _DEPTHSHIFT
     labdepth -= _DEPTHSHIFT
@@ -401,10 +403,7 @@ while True:
     legendheight = 0.07
     depthwidth = 0.04
     
-    if uselito:
-        left = 0.005 + 2*depthwidth
-    else:
-        left = 0.005 + depthwidth
+    left = 0.005 + depthwidth
     
     plt.subplots_adjust(left=left, right=0.995, bottom=0.005, top=0.995-2*legendheight, wspace=0.0)
     
@@ -492,6 +491,14 @@ while True:
     loglegend(aux, "log({}) - baseline".format(logdata[wellname]["rt"]['name']), limits["dtlogr"], colorsdict[colors["logrt"]], '-', fontsize=_FONTSIZE)
     
     ###
+
+    to_save = {
+        'DEPT':np.flip(depth2),
+        'TOC':np.flip(toci)
+    }
+
+    df = pd.DataFrame(to_save)
+    df.to_csv('toc.csv', index=False)
     
     ax5 = plt.subplot(1, 5, 5)
     tocline = logplot(ax5, depth2, toci, colorsdict[colors["toc"]], limits["toc"], depthlim)
@@ -510,6 +517,8 @@ while True:
     dtll = LiveLine(dtline)
     logrtll = LiveLine(logrtline)
     tocll = LiveLine(tocline)
+
+    print(limits)
     
     ###
     

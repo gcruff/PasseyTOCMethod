@@ -1,9 +1,9 @@
 {
 "labdata":
     {
-    "filename": "C:\\Users\\fvize\\Desktop\\ArtigoSBGeoq\\Dados\\dadoslab.csv",
-    "delimiter": ";",
-    "decimal": ",",
+    "filename": "lab\\dadoslab.csv",
+    "delimiter": ",",
+    "decimal": ".",
     "headerlines": 1,
     "nullstr": "-",
     "rows":
@@ -16,15 +16,14 @@
     },
 "logdata":
     {
-    "lasfilesdir": "C:\\Users\\fvize\\Desktop\\ArtigoSBGeoq\\Dados\\LAS",
+    "lasfilesdir": "DADOS",
     "mnemoics":
         {
-            "depth": "DEPT",
-            "dt": "DT",
-            "rt": "ILD",
+            "depth": "DEPTH",
+            "dt": "DTCO",
+            "rt": "RT",
             "gr": "GR",
-            "cali": "CALI",
-            "lito": "LITO"
+            "cali": "HCAL"
         }
     },
 "visualization":
